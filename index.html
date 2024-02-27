@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+    <div class="box">
+        <p class="">Vyber město</p>
+        <div class="buttons">
+            <button class="" onclick="showCity(this)">Třebíč</button>
+            <button class="" onclick="showCity(this)">Jihlava</button>
+            <button class="" onclick="showCity(this)">Žďár nad Sázavou</button>
+            <button class="" onclick="showCity(this)">Pelhřimov</button>
+        </div>
+    </div>
+    <form>
+
+        <input type="radio" id="html" name="fav_language" value="HTML">
+<label for="html">Havlíčkův Brod</label><br>
+<input type="radio" id="css" name="fav_language" value="CSS">
+<label for="css">Jihlava</label><br>
+<input type="radio" id="javascript" name="fav_language" value="JavaScript">
+<label for="javascript">Třebíč</label>
+<input type="radio" id="zdar" name="fav_language" value="Žďár nad Sázavou">
+<label for="zdar">Žďár nad Sázavou</label>
+<button type="submit">Submit</button>
+
+
+    </form>
+
+    <div class="box2" id="weather-info">
+    </div>
+
+    <script>
+        function getWeather(city) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    document.getElementById("weather-info").innerHTML = xhr.responseText;
+                }
+            };
+            
+            xhr.open("GET", "get_weather.php?city=" + city, true);
+            xhr.send();
+        }
+
+
+        function showCity(mesto){
+
+            const url = "get_weather.php";
+            let data = new URLSearchParams();
+            data.append('city', String(mesto.innerHTML));
+
+            const options = {
+                method: 'POST',
+                body: data
+            };
+            fetch(url, options)
+            .then((data) => {
+                if (data.error) {
+                    // Handle error case
+                    console.error(data.error);
+                } else {
+                    // Display weather information
+                    document.getElementById("weather-info").innerHTML = 'Temperature: ' + data.temperature + '°C';
+
+                    // Add other information as needed
+    }
+});
+
+        } 
+
+    </script>
+
+    </body>
+</html>
