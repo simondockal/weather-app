@@ -7,13 +7,15 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 </head>
 <body>
 
 <div class="box">
     <h1>Formulář pro výběr měst v České republice</h1>
   
-    <form action="get_weather.php" method="post">
+    <form id="weatherForm">
         <div>
           <input type="radio" id="mesto1" name="mesto" value="Praha">
           <label for="mesto1">Praha</label>
@@ -35,6 +37,10 @@
           <label for="mesto5">Liberec</label>
         </div>
         <div>
+          <input type="radio" id="mesto6" name="mesto" value="České Budějovice">
+          <label for="mesto6">České Budějovice</label>
+        </div>
+        <div>
           <label for="od">Od:</label>
           <input type="date" id="od" name="od" required>
         </div>
@@ -49,39 +55,80 @@
 </div>
 
 <div class="box2" id="weather-info">
+    <table id="weather-table">
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Město</th>
+                <th>Teplota (°C)</th>
+                <th>Popis</th>
+                <th>Vlhkost (%)</th>
+                <th>Západ slunce</th>
+            </tr>
+        </thead>
+        <tbody id="weather-data">
+            <!-- Data budou zobrazena zde -->
+        </tbody>
+    </table>
 </div>
 
 <script>
-    function getWeather(city) {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                document.getElementById("weather-info").innerHTML = xhr.responseText;
-            }
-        };
+    document.getElementById("weatherForm").addEventListener("submit", function(event) {
+        event.preventDefault();
         
-        xhr.open("GET", "get_weather.php?city=" + city, true);
-        xhr.send();
-    }
-
-    function showCity(city) {
+        const formData = new FormData(this);
         const url = "get_weather.php";
-        let data = new URLSearchParams();
-        data.append('city', city);
 
-        const options = {
-            method: 'POST',
-            body: data
-        };
+        fetch(url, {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            displayWeather(data);
+        })
+        .catch(error => {
+            console.error('Chyba:', error);
+        });
+    });
 
-        fetch(url, options)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById("weather-info").innerHTML = data;
-            })
-            .catch(error => {
-                console.error('Chyba:', error);
-            });
+    function displayWeather(data) {
+        const weatherTable = document.getElementById("weather-table");
+        const weatherDataBody = document.getElementById("weather-data");
+
+        // Odstranění starých dat z tabulky
+        weatherDataBody.innerHTML = '';
+
+        // Pro každý den v data
+        data.forEach(day => {
+            const row = document.createElement("tr");
+
+            const dateCell = document.createElement("td");
+            dateCell.textContent = day.date;
+            row.appendChild(dateCell);
+
+            const cityCell = document.createElement("td");
+            cityCell.textContent = day.city;
+            row.appendChild(cityCell);
+
+            const tempCell = document.createElement("td");
+            tempCell.textContent = day.temperature;
+            row.appendChild(tempCell);
+
+            const descCell = document.createElement("td");
+            descCell.textContent = day.description;
+            row.appendChild(descCell);
+
+            const humidityCell = document.createElement("td");
+            humidityCell.textContent = day.humidity;
+            row.appendChild(humidityCell);
+
+            const sunsetCell = document.createElement("td");
+            sunsetCell.textContent = day.sunset;
+            row.appendChild(sunsetCell);
+
+            weatherDataBody.appendChild(row);
+        });
     }
 </script>
 
